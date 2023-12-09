@@ -714,8 +714,9 @@ func get_stream_char(stream: String, idx: int) -> String:
 
 func draw_cursor():
 	if code_edit.is_dragging_cursor():
-		selection_from = Vector2i(code_edit.get_selection_from_column(), code_edit.get_selection_from_line())
-		selection_to = Vector2i(code_edit.get_selection_to_column(), code_edit.get_selection_to_line())
+		if(code_edit.get_selected_text(0)):
+			selection_from = Vector2i(code_edit.get_selection_from_column(), code_edit.get_selection_from_line())
+			selection_to = Vector2i(code_edit.get_selection_to_column(), code_edit.get_selection_to_line())
 	
 	if code_edit.get_selected_text(0).length() > 1 and !is_mode_visual(mode):
 		code_edit.release_focus()
