@@ -346,13 +346,16 @@ func handle_input_stream(stream: String) -> String:
 		
 	if stream.begins_with('<A-j>'):
 		if(is_mode_visual(mode)):
-			swap_line(get_line(), 1)
+			swap_multi_lines(selection_from.y, selection_to.y, 1)
 		else:
 			swap_line(get_line(), 1)
 		return ''
 	
 	if stream.begins_with('<A-k>'):
-		swap_line(get_line(), -1)
+		if(is_mode_visual(mode)):
+			swap_multi_lines(selection_from.y, selection_to.y, -1)
+		else:
+			swap_line(get_line(), -1)
 		return ''	
 	
 	if stream.begins_with('<TAB>') :
@@ -792,7 +795,28 @@ func paste_backward():
 	set_mode(Mode.NORMAL)
 	
 func swap_line(line: int, n: int):
-	code_edit.swap_lines(line, line + n)
-	move_line(n)
+	code_edit.swap_lines(min(line, line+n), max(line, line+n))
+	if(is_mode_visual(mode)):
+		update_visual_selection()
+	else: 
+		move_line(n)
+
+func swap_multi_lines(from: int, to: int, n: int):
+	var a := from
+	var b := to
+	from = min(a,b)
+	to = max(a,b)
 	
-	
+	code_edit.begin_complex_operation()
+	if n > 0:
+		for line in range(to, from-1, -1):
+			print(line)
+			swap_line(line, n)
+	else:
+		for line in range(from, to+1):
+			print(line)
+			swap_line(line, n)
+			
+	selection_from.y += n
+	selection_to.y += n
+	code_edit.end_complex_operation()
