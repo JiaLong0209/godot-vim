@@ -90,6 +90,14 @@ func _input(event):
 				c = c.to_lower()
 			ch = '<C-%s>' % c
 	
+	if Input.is_key_pressed(KEY_ALT):
+		if OS.is_keycode_unicode(event.keycode):
+			var c: String = char(event.keycode)
+			if !Input.is_key_pressed(KEY_SHIFT):
+				c = c.to_lower()
+			ch = '<A-%s>' % c
+	
+	
 	input_stream += ch
 	status_bar.display_text(input_stream)
 	
@@ -319,8 +327,9 @@ func handle_input_stream(stream: String) -> String:
 		return ''
 	
 	if stream.begins_with('<C-f>'):
-		# Avoid normal mode	
-		set_mode(Mode.VISUAL) 
+		 #Avoid normal mode	
+		if(! is_mode_visual(mode)):
+			set_mode(Mode.VISUAL) 
 		return ''	
 	
 	if stream.begins_with('<C-C'):
@@ -334,6 +343,17 @@ func handle_input_stream(stream: String) -> String:
 		
 	if stream.begins_with('<C-v>'):
 		return ''
+		
+	if stream.begins_with('<A-j>'):
+		if(is_mode_visual(mode)):
+			swap_line(get_line(), 1)
+		else:
+			swap_line(get_line(), 1)
+		return ''
+	
+	if stream.begins_with('<A-k>'):
+		swap_line(get_line(), -1)
+		return ''	
 	
 	if stream.begins_with('<TAB>') :
 		return ''
@@ -771,5 +791,8 @@ func paste_backward():
 	code_edit.end_complex_operation()
 	set_mode(Mode.NORMAL)
 	
+func swap_line(line: int, n: int):
+	code_edit.swap_lines(line, line + n)
+	move_line(n)
 	
 	
