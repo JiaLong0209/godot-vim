@@ -169,6 +169,7 @@ func handle_input_stream(stream: String) -> String:
 		code_edit.end_complex_operation()
 		globals.last_command = stream
 		return ''
+	
 	if stream.begins_with('d'):
 		if is_mode_visual(mode):
 			DisplayServer.clipboard_set( '\r' + code_edit.get_selected_text() )
@@ -266,24 +267,29 @@ func handle_input_stream(stream: String) -> String:
 	if stream == 'i' and mode == Mode.NORMAL:
 		set_mode(Mode.INSERT)
 		return ''
+	
 	if stream == 'a' and mode == Mode.NORMAL:
 		set_mode(Mode.INSERT)
 		move_column(+1)
 		return ''
+	
 	if stream == 'I' and mode == Mode.NORMAL:
 		set_column(code_edit.get_first_non_whitespace_column(get_line()))
 		set_mode(Mode.INSERT)
 		return ''
+	
 	if stream.begins_with('A') and mode == Mode.NORMAL:
 		set_mode(Mode.INSERT)
 		set_column(get_line_length())
 		return ''
+	
 	if stream == 'v':
 		set_mode(Mode.VISUAL)
 		return ''
 	if stream == 'V':
 		set_mode(Mode.VISUAL_LINE)
 		return ''
+	
 	if stream.begins_with('o'):
 		if is_mode_visual(mode):
 			var tmp: Vector2i = selection_from
@@ -319,6 +325,7 @@ func handle_input_stream(stream: String) -> String:
 		code_edit.cut()
 		set_mode(Mode.INSERT)
 		return ''
+	
 	if stream == 'u':
 		code_edit.undo()
 		move_column(-1)
@@ -326,11 +333,18 @@ func handle_input_stream(stream: String) -> String:
 		
 		return ''
 	if stream.begins_with('<C-r>'):
-		code_edit.redo()
+		#code_edit.redo()
+		set_mode(Mode.VISUAL)
 		return ''
+	
+	if stream.begins_with('<C-f>'):
+		# Avoid normal mode	
+		set_mode(Mode.VISUAL) 
+		return ''	
 		
 	if stream.begins_with('<TAB>') :
 		print('tab')
+		set_mode(Mode.VISUAL)
 
 	if stream.begins_with('r') and mode == Mode.NORMAL:
 		if stream.length() < 2:	return stream
