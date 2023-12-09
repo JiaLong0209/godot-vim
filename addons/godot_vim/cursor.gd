@@ -725,9 +725,9 @@ func update_visual_selection():
 		var to_right: bool = selection_to.x >= selection_from.x or selection_to.y > selection_from.y
 		code_edit.select( selection_from.y, selection_from.x + int(!to_right), selection_to.y, selection_to.x + int(to_right) )
 	elif mode == Mode.VISUAL_LINE:
-		var f: int = mini(selection_from.y, selection_to.y) - 1
+		var f: int = mini(selection_from.y, selection_to.y)
 		var t: int = maxi(selection_from.y, selection_to.y)
-		code_edit.select(f, get_line_length(f), t, get_line_length(t))
+		code_edit.select(f, 0, t, get_line_length(t))
 
 func is_mode_visual(m: int) -> bool:
 	return m == Mode.VISUAL or m == Mode.VISUAL_LINE
@@ -808,15 +808,12 @@ func swap_multi_lines(from: int, to: int, n: int):
 	to = max(a,b)
 	
 	code_edit.begin_complex_operation()
+	selection_from.y += n
+	selection_to.y += n
 	if n > 0:
 		for line in range(to, from-1, -1):
-			print(line)
 			swap_line(line, n)
 	else:
 		for line in range(from, to+1):
-			print(line)
 			swap_line(line, n)
-			
-	selection_from.y += n
-	selection_to.y += n
 	code_edit.end_complex_operation()
