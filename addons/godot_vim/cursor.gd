@@ -202,32 +202,12 @@ func handle_input_stream(stream: String) -> String:
 		return ''
 	
 	if stream.begins_with('p'):
-		code_edit.begin_complex_operation()
-		if is_mode_visual(mode):
-			code_edit.delete_selection()
-		if DisplayServer.clipboard_get().begins_with('\r\n'):
-			set_column(get_line_length())
-		else:
-			move_column(+1)
-		code_edit.deselect()
-		code_edit.paste()
-		move_column(-1)
-		code_edit.end_complex_operation()
-		set_mode(Mode.NORMAL)
+		paste_forward()
 		globals.last_command = stream
 		return ''
 	
 	if stream.begins_with('P'):
-		code_edit.begin_complex_operation()
-		if is_mode_visual(mode):
-			code_edit.delete_selection()
-		if DisplayServer.clipboard_get().begins_with('\r\n'):
-			move_line(-1)
-			set_column(get_line_length())
-		code_edit.deselect()
-		code_edit.paste()
-		code_edit.end_complex_operation()
-		set_mode(Mode.NORMAL)
+		paste_backward()
 		globals.last_command = stream
 		return ''
 	
@@ -286,6 +266,7 @@ func handle_input_stream(stream: String) -> String:
 	if stream == 'v':
 		set_mode(Mode.VISUAL)
 		return ''
+	
 	if stream == 'V':
 		set_mode(Mode.VISUAL_LINE)
 		return ''
@@ -341,10 +322,21 @@ func handle_input_stream(stream: String) -> String:
 		# Avoid normal mode	
 		set_mode(Mode.VISUAL) 
 		return ''	
+	
+	if stream.begins_with('<C-C'):
+		code_edit.copy()
+		set_mode(Mode.NORMAL)
+		return ''
+	
+	if stream.begins_with('<C-V>'):
+		paste_forward()
+		return ''
 		
+	if stream.begins_with('<C-v>'):
+		return ''
+	
 	if stream.begins_with('<TAB>') :
-		print('tab')
-		set_mode(Mode.VISUAL)
+		return ''
 
 	if stream.begins_with('r') and mode == Mode.NORMAL:
 		if stream.length() < 2:	return stream
@@ -752,3 +744,32 @@ func draw_cursor():
 		code_edit.set_caret_column(column)
 	
 	code_edit.select(line, column, line, column+1)
+
+func paste_forward():
+		code_edit.begin_complex_operation()
+		if is_mode_visual(mode):
+			code_edit.delete_selection()
+		if DisplayServer.clipboard_get().begins_with('\r\n'):
+			set_column(get_line_length())
+		else:
+			move_column(+1)
+		code_edit.deselect()
+		code_edit.paste()
+		move_column(-1)
+		code_edit.end_complex_operation()
+		set_mode(Mode.NORMAL)
+	
+func paste_backward():
+	code_edit.begin_complex_operation()
+	if is_mode_visual(mode):
+		code_edit.delete_selection()
+	if DisplayServer.clipboard_get().begins_with('\r\n'):
+		move_line(-1)
+		set_column(get_line_length())
+	code_edit.deselect()
+	code_edit.paste()
+	code_edit.end_complex_operation()
+	set_mode(Mode.NORMAL)
+	
+	
+	
