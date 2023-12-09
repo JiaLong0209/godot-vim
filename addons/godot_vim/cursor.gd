@@ -377,7 +377,10 @@ func handle_input_stream(stream: String) -> String:
 		return ''
 	if stream.begins_with('y'):
 		if is_mode_visual(mode):
-			code_edit.copy()
+			if mode == Mode.VISUAL_LINE:
+				DisplayServer.clipboard_set( '\r\n' + code_edit.get_selected_text() )
+			else:
+				code_edit.copy()
 			set_mode(Mode.NORMAL)
 			return ''
 		
