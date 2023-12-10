@@ -194,6 +194,11 @@ func handle_input_stream(stream: String) -> String:
 			
 		if mode == Mode.VISUAL_LINE:
 			var ind: int = code_edit.get_first_non_whitespace_column(get_line())
+			if selection_from.y > selection_to.y:
+				var t = selection_from.y
+				selection_from.y = selection_to.y
+				selection_to.y = t
+				
 			code_edit.select( selection_from.y , 0, selection_to.y +1, 0)
 			DisplayServer.clipboard_set( '\r' + code_edit.get_selected_text() )
 			code_edit.delete_selection()
