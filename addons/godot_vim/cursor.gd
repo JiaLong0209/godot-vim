@@ -186,24 +186,32 @@ func handle_input_stream(stream: String) -> String:
 		return ''
 	
 	if stream.begins_with('d'):
-		if is_mode_visual(mode):
+		if mode == Mode.VISUAL:
 			DisplayServer.clipboard_set( '\r' + code_edit.get_selected_text() )
 			code_edit.delete_selection()
-			move_line(+1)
 			set_mode(Mode.NORMAL)
 			return ''
-		
+			
+		if mode == Mode.VISUAL_LINE:
+			var ind: int = code_edit.get_first_non_whitespace_column(get_line())
+			code_edit.select( selection_from.y , 0, selection_to.y +1, 0)
+			DisplayServer.clipboard_set( '\r' + code_edit.get_selected_text() )
+			code_edit.delete_selection()
+			set_mode(Mode.NORMAL)
+			move_column(ind)
+			return ''
+
 		if stream.begins_with('dd') and mode == Mode.NORMAL:
-			if get_line() == 0:
+			var ind: int = code_edit.get_first_non_whitespace_column(get_line())
+			if get_line() != code_edit.get_line_count()-1:
 				code_edit.select( get_line(), 0, get_line()+1, 0)
 				DisplayServer.clipboard_set( '\r' + code_edit.get_selected_text() )
 				code_edit.delete_selection()
-				move_column(get_line_length())
+				move_column(ind)
 			else:
 				code_edit.select( get_line()-1, get_line_length(get_line()-1), get_line(), get_line_length(get_line()) )
 				DisplayServer.clipboard_set( '\r' + code_edit.get_selected_text() )
 				code_edit.delete_selection()
-				move_line(1)
 				
 			globals.last_command = stream
 			return ''
