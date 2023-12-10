@@ -83,14 +83,21 @@ func _input(event):
 	if Input.is_key_pressed(KEY_TAB):
 		ch = '<TAB>'
 		
-	if Input.is_key_pressed(KEY_CTRL):
+	if Input.is_key_pressed(KEY_CTRL) and Input.is_key_pressed(KEY_ALT):
+		if OS.is_keycode_unicode(event.keycode):
+			var c: String = char(event.keycode)
+			if !Input.is_key_pressed(KEY_SHIFT):
+				c = c.to_lower()
+			ch = '<CA-%s>' % c
+		
+	if Input.is_key_pressed(KEY_CTRL) and !Input.is_key_pressed(KEY_ALT):
 		if OS.is_keycode_unicode(event.keycode):
 			var c: String = char(event.keycode)
 			if !Input.is_key_pressed(KEY_SHIFT):
 				c = c.to_lower()
 			ch = '<C-%s>' % c
 	
-	if Input.is_key_pressed(KEY_ALT):
+	if Input.is_key_pressed(KEY_ALT) and !Input.is_key_pressed(KEY_CTRL):
 		if OS.is_keycode_unicode(event.keycode):
 			var c: String = char(event.keycode)
 			if !Input.is_key_pressed(KEY_SHIFT):
@@ -351,7 +358,7 @@ func handle_input_stream(stream: String) -> String:
 		
 	if stream.begins_with('<C-v>'):
 		return ''
-		
+			
 	if stream.begins_with('<A-j>'):
 		if(is_mode_visual(mode)):
 			swap_multi_lines(selection_from.y, selection_to.y, 1)
@@ -366,6 +373,22 @@ func handle_input_stream(stream: String) -> String:
 			swap_line(get_line(), -1)
 		return ''	
 	
+	if stream.begins_with('<A-,>'):
+		if is_mode_visual(mode):
+			code_edit.unindent_lines()
+		if mode == Mode.NORMAL:
+			code_edit.unindent_lines()
+			globals.last_command = stream
+		return ''
+
+	if stream.begins_with('<A-.>'):
+		if is_mode_visual(mode):
+			code_edit.indent_lines()
+		if mode == Mode.NORMAL:
+			code_edit.indent_lines()
+			globals.last_command = stream
+		return ''
+
 	if stream.begins_with('<TAB>') :
 		return ''
 
@@ -492,6 +515,7 @@ func handle_input_stream(stream: String) -> String:
 			code_edit.indent_lines()
 			globals.last_command = stream
 			return ''
+	
 	if stream.begins_with('<'):
 		if is_mode_visual(mode) and stream.length() == 1:
 			code_edit.unindent_lines()
