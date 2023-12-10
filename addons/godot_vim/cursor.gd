@@ -67,12 +67,12 @@ func _input(event):
 	if !event is InputEventKey:	return
 	if !event.pressed:	return
 	if mode == Mode.INSERT or mode == Mode.COMMAND:	return
-
+	if mode == Mode.NORMAL: 
+		code_edit.cancel_code_completion()
 	if event.keycode == KEY_ESCAPE:
 		input_stream = ''
 		return
 	
-#
 	var ch: String
 	if !event is InputEventMouseMotion and !event is InputEventMouseButton:
 		ch = char(event.unicode)
