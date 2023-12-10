@@ -755,15 +755,20 @@ func set_column(position: int):
 	selection_to = Vector2i( clampi(position, 0, get_line_length(selection_to.y)), clampi(selection_to.y, 0, code_edit.get_line_count()) )
 	update_visual_selection()
 
+
 func update_visual_selection():
 	if mode == Mode.VISUAL:
 		var to_right: bool = selection_to.x >= selection_from.x or selection_to.y > selection_from.y
 		code_edit.select( selection_from.y, selection_from.x + int(!to_right), selection_to.y, selection_to.x + int(to_right) )
+	
 	elif mode == Mode.VISUAL_LINE:
 		var f: int = mini(selection_from.y, selection_to.y)
 		var t: int = maxi(selection_from.y, selection_to.y)
 		code_edit.select(f, 0, t, get_line_length(t))
-
+	
+	code_edit.set_caret_line(min(selection_to.y, code_edit.get_line_count()-1))
+	
+	
 func is_mode_visual(m: int) -> bool:
 	return m == Mode.VISUAL or m == Mode.VISUAL_LINE
 
