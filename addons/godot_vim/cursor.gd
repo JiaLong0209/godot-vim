@@ -743,12 +743,11 @@ func get_caret_pos() -> Vector2i:
 	return Vector2i(code_edit.get_caret_column(), code_edit.get_caret_line())
 
 func set_line(position:int):
-	if !is_mode_visual(mode):
-		code_edit.set_caret_line(min(position, code_edit.get_line_count()-1))
-		return
+	code_edit.set_caret_line(min(position, code_edit.get_line_count()-1))
 	
-	selection_to = Vector2i( clampi(selection_to.x, 0, get_line_length(position)), clampi(position, 0, code_edit.get_line_count()) )
-	update_visual_selection()
+	if is_mode_visual(mode):
+		selection_to = Vector2i( clampi(selection_to.x, 0, get_line_length(position)), clampi(position, 0, code_edit.get_line_count()) )
+		update_visual_selection()
 
 
 func move_column(offset: int):
@@ -760,13 +759,12 @@ func get_column():
 	return code_edit.get_caret_column()
 
 func set_column(position: int):
-	if !is_mode_visual(mode):
-		var line: String = code_edit.get_line(code_edit.get_caret_line())
-		code_edit.set_caret_column(min(line.length(), position))
-		return
+	var line: String = code_edit.get_line(code_edit.get_caret_line())
+	code_edit.set_caret_column(min(line.length(), position))
 	
-	selection_to = Vector2i( clampi(position, 0, get_line_length(selection_to.y)), clampi(selection_to.y, 0, code_edit.get_line_count()) )
-	update_visual_selection()
+	if is_mode_visual(mode):
+		selection_to = Vector2i( clampi(position, 0, get_line_length(selection_to.y)), clampi(selection_to.y, 0, code_edit.get_line_count()))
+		update_visual_selection()
 
 
 func update_visual_selection():
